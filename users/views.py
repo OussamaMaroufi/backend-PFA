@@ -298,6 +298,30 @@ class ProfilePictureUpdate(APIView):
             response=serializer.errors
         return Response(response)
 
+class ResumeUpdate(APIView):
+    permission_classes=[IsAuthenticated]
+    serializer_class=UserProfileSerializer
+    parser_class=(FileUploadParser,)
+
+    def patch(self, *args, **kwargs):
+        rd = random.Random()
+        resume_file =self.request.FILES['resume_file']
+        print("Resume",resume_file)
+        extension = os.path.splitext(resume_file.name)[1]
+        resume_file.name='{}{}'.format(uuid.UUID(int=rd.getrandbits(128)), extension)
+        filename = default_storage.save(resume_file.name, resume_file)
+        setattr(self.request.user.userprofile, 'cv', filename)
+        serializer=self.serializer_class(
+            self.request.user.userprofile, data={}, partial=True)
+        if serializer.is_valid():
+            user=serializer.save().user
+            response={'type': 'Success', 'message': 'successfully updated your resume',
+                        'user': UserSerializer(user).data}
+        else:
+            response=serializer.errors
+        return Response(response)
+        # return Response({'detail':'Resume Uploaded'})
+
 @api_view(['DELETE'])
 @permission_classes((IsAuthenticated,))
 def ProfilePictureDelete(request):

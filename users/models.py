@@ -34,6 +34,7 @@ class UserProfile(models.Model):
     followers = models.ManyToManyField(User, related_name='following', blank=True)
     email_verified = models.BooleanField(default=False)
     id = models.UUIDField(default=uuid.uuid4,  unique=True, primary_key=True, editable=False)
+    cv  = models.ImageField(blank=True,null=True)
     """
     profile = UserProfile.objects.first()
     profile.followers.all() -> All users following this profile

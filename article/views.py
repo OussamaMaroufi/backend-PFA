@@ -51,14 +51,17 @@ def delete_article(request,pk):
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def articles(request):
+
     query = request.query_params.get('q')
     if query == None:
         query = ''
     articles = Article.objects.filter(Q(content__icontains=query)|Q(title__icontains=query)).order_by("-created")
+ 
     paginator = PageNumberPagination()
     paginator.page_size = 10
     result_page = paginator.paginate_queryset(articles,request)
     serializer = ArticleSerializer(result_page, many=True)
+    print("Articles",serializer.data[-1])
     return paginator.get_paginated_response(serializer.data)
 
 
